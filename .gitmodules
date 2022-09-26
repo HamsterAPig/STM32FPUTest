@@ -1,3 +1,6 @@
 [submodule "3rdparty/mcu_printf"]
 	path = 3rdparty/mcu_printf
 	url = git@github.com:HamsterAPig/printf.git
+[submodule "3rdparty/IQMath"]
+	path = 3rdparty/IQMath
+	url = git@github.com:HamsterAPig/IQMath.git
