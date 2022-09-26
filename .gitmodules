@@ -1,0 +1,3 @@
+[submodule "3rdparty/mcu_printf"]
+	path = 3rdparty/mcu_printf
+	url = git@github.com:HamsterAPig/printf.git
