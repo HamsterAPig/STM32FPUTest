@@ -17,6 +17,8 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
 #include "main.h"
 #include "usart.h"
 #include "gpio.h"
@@ -93,15 +95,15 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   DWT_Init();
+  volatile float res;
+  volatile float a = 0.5569f, b = 0.3772f;
+  volatile uint32_t before, time;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      volatile float res;
-      float a = 0.5569f, b = 0.3772f;
-      volatile uint32_t before, time;
 
 #ifndef _USING_DSP
       before = DWT_TS_GET();
@@ -182,10 +184,12 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+#ifndef __DEBUG_MODE
   __disable_irq();
   while (1)
   {
   }
+#endif
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -206,3 +210,5 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
+
+#pragma clang diagnostic pop
