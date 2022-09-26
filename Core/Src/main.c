@@ -94,6 +94,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      printf("Hello World!\n");
+      HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -146,7 +148,10 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void _putchar(char character)
+{
+    HAL_UART_Transmit(&huart1, (uint8_t *)&character, 1, 0xFF);
+}
 /* USER CODE END 4 */
 
 /**
