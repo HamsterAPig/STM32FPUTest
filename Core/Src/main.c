@@ -24,6 +24,11 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "use_dwt.h"
+#include "math.h"
+
+#ifdef ARM_MATH_CM4
+#include "arm_math.h"
+#endif
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,7 +99,22 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      printf("Hello World!\n");
+      volatile float res;
+      float a = 0.5569f, b = 0.3772f;
+      volatile uint32_t before, time;
+
+#ifndef _USING_DSP
+      before = DWT_TS_GET();
+      for (int i = 0; i < __MAX_LOOP_COUNT; ++i) {
+          res = a * b;
+      }
+      time = DWT_TS_GET() - before;
+#ifndef _USING_FPU
+      printf("No FPU Calc res = %f, and CPU cycle is %d\n", res, time);
+#else
+      printf("Enable FPU to Calc res = %f, and CPU cycle is %d\n", res, time);
+#endif
+#endif
       HAL_Delay(500);
     /* USER CODE END WHILE */
 

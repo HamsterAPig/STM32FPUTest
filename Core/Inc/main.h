@@ -46,7 +46,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#define __MAX_LOOP_COUNT 10000
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

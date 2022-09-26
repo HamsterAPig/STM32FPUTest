@@ -18,10 +18,22 @@ project(F401CCEnableFPU-DSP C CXX ASM)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-#Uncomment for hardware floating point
-#add_compile_definitions(ARM_MATH_CM4;ARM_MATH_MATRIX_CHECK;ARM_MATH_ROUNDING)
-#add_compile_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
-#add_link_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
+set(USING_DSP OFF)
+set(USING_FPU OFF)
+
+if("${USING_DSP}" STREQUAL "ON")
+    set(USING_DSP ON)
+    add_compile_definitions(_USING_DSP)
+endif()
+
+if("${USING_FPU}" STREQUAL "ON")
+    #Uncomment for hardware floating point
+    message(STATUS "open FPU to Calc")
+    add_compile_definitions(_USING_FPU)
+    add_compile_definitions(ARM_MATH_CM4;ARM_MATH_MATRIX_CHECK;ARM_MATH_ROUNDING)
+    add_compile_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
+    add_link_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
+endif()
 
 #Uncomment for software floating point
 #add_compile_options(-mfloat-abi=soft)
