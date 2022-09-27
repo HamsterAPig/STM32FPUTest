@@ -104,19 +104,56 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+#ifdef _USING_ARM_MATH
+      float f_tmp[] = {a, b, 0.0f};
+      q31_t q_tmp[3];
+      arm_float_to_q31(f_tmp, q_tmp, 2);
+#endif
+#ifdef _USING_IQ_MATH
+      _iq aa = _IQ(a);
+      _iq bb = _IQ(b);
+      volatile _iq rr = 0;
+#endif
 
-#ifndef _USING_DSP
       before = DWT_TS_GET();
       for (int i = 0; i < __MAX_LOOP_COUNT; ++i) {
-          res = a * b;
+#ifdef _ENABLE_TEST_FLOAT
+#ifdef _USING_ARM_MATH
+        arm_mult_q31(q_tmp, q_tmp + 1, q_tmp + 2, 1);
+#elif _USING_IQ_MATH
+        rr = _IQmpy(aa, bb);
+#else
+        res = a * b;
+#endif
+#endif
+
+#ifdef _ENABLE_TEST_DSP
+#ifndef _USING_FIX_POINT
+
+#ifdef _USING_ARM_MATH
+          res = arm_cos_f32(a) + arm_sin_f32(b);
+#else
+          res = cos(a) + sin(b);
+#endif // _USING_ARM_MATH
+#else
+#ifdef _USING_ARM_MATH
+          q_tmp[2] = arm_cos_q31(q_tmp[0]) + arm_sin_q31(q_tmp[1]);
+#elif _USING_IQ_MATH
+          rr = _IQcos(aa) + _IQcos(bb);
+#endif // _USING_ARM_MATH
+
+#endif // _USING_FIX_POINT
+#endif // ENABLE_TEST_DSP
       }
       time = DWT_TS_GET() - before;
-#ifndef _USING_FPU
-      printf("No FPU Calc res = %f, and CPU cycle is %d\n", res, time);
-#else
-      printf("Enable FPU to Calc res = %f, and CPU cycle is %d\n", res, time);
+#ifdef _USING_ARM_MATH
+      arm_q31_to_float(q_tmp + 2, f_tmp, 1);
+      res = f_tmp[0];
 #endif
+#ifdef _USING_IQ_MATH
+      rr = _IQtoF(rr);
 #endif
+      printf("Calc res = %f, CPU Cycle = %d\n", res, time);
       HAL_Delay(500);
     /* USER CODE END WHILE */
 

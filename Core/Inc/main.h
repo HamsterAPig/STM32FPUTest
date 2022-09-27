@@ -32,6 +32,14 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "printf.h"
+#include "math.h"
+#ifdef _USING_ARM_MATH
+#include "arm_math.h"
+#endif
+
+#ifdef _USING_IQ_MATH
+#include "IQmathLib.h"
+#endif
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

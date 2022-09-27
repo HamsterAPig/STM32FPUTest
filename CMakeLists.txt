@@ -18,12 +18,48 @@ project(F401CCEnableFPU-DSP C CXX ASM)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-set(USING_DSP OFF)
-set(USING_FPU ON)
+option(ENABLE_TEST_FLOAT "enable to test float performance" ON)
+option(ENABLE_TEST_DSP "enable to test dsp performance")
 
-if("${USING_DSP}" STREQUAL "ON")
-    set(USING_DSP ON)
-    add_compile_definitions(_USING_DSP)
+option(USING_FPU "enable fpu" OFF)
+option(USING_FIX_POINT "using fix point")
+option(USING_ARM_MATH "using arm lib")
+option(USING_IQ_MATH "using iq math lib")
+
+if(ENABLE_TEST_FLOAT)
+    add_compile_definitions(_ENABLE_TEST_FLOAT)
+    message(STATUS "Enable test float performance")
+    if((USING_ARM_MATH OR USING_IQ_MATH) AND (NOT USING_FPU))
+        message(FATAL_ERROR "Enable dsp library when software floating point is not allowed")
+    endif()
+else()
+    set(USING_FPU ON)
+    add_compile_definitions(_ENABLE_TEST_DSP)
+    message(STATUS "Enable test dsp performance")
+endif()
+
+if(USING_FIX_POINT)
+    if((NOT USING_IQ_MATH) AND (NOT USING_ARM_MATH))
+        message(FATAL_ERROR "A calculation library must be defined when using fixed-point numbers(IQMath or ARMMath)")
+        set(USING_IQ_MATH ON)
+    endif()
+    add_compile_definitions(_USING_FIX_POINT)
+    message(STATUS "using fix point")
+endif()
+
+if(USING_ARM_MATH)
+    add_compile_definitions(_USING_ARM_MATH)
+    message(STATUS "using arm math")
+endif()
+
+if(USING_IQ_MATH)
+    add_compile_definitions(_USING_IQ_MATH)
+    message(STATUS "using iq math")
+endif()
+
+if(USING_IQ_MATH AND USING_ARM_MATH)
+    message(FATAL_ERROR "You can't use two math libraries at the same time")
+    set(USING_IQ_MATH ON)
 endif()
 
 if("${USING_FPU}" STREQUAL "ON")
@@ -58,12 +94,13 @@ elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
     add_compile_options(-Os)
 else ()
     message(STATUS "Minimal optimization, debug info included")
-    add_compile_options(-Og -g)
+    add_compile_options(-O0 -g)
     add_compile_definitions(__DEBUG_MODE)
 endif ()
 
 include_directories(Core/Inc Drivers/STM32F4xx_HAL_Driver/Inc Drivers/STM32F4xx_HAL_Driver/Inc/Legacy Drivers/CMSIS/Device/ST/STM32F4xx/Include Drivers/CMSIS/Include
-        3rdparty/Cortex4DSP/Include)
+        3rdparty/Cortex4DSP/Include
+        3rdparty/IQMath)
 
 add_definitions(-DUSE_HAL_DRIVER -DSTM32F401xC)
 
@@ -78,11 +115,13 @@ add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR
 add_link_options(-mcpu=cortex-m4 -mthumb -mthumb-interwork)
 add_link_options(-T ${LINKER_SCRIPT})
 
+set(ELF_NAME ${PROJECT_NAME}_${ENABLE_TEST_FLOAT}_${ENABLE_TEST_DSP}_${USING_FPU}_${USING_FIX_POINT}_${USING_ARM_MATH}_${USING_IQ_MATH})
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
 target_link_libraries(${PROJECT_NAME}.elf PRIVATE
         DriversLib
         MCUPrintfLib
-        ${PROJECT_SOURCE_DIR}/3rdparty/Cortex4DSP/Lib/GCC/libarm_cortexM4lf_math.a)
+        ${PROJECT_SOURCE_DIR}/3rdparty/Cortex4DSP/Lib/GCC/libarm_cortexM4lf_math.a
+        ${PROJECT_SOURCE_DIR}/3rdparty/IQMath/gcc-cm4f/IQmathLib-cm4f.a)
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
@@ -90,5 +129,6 @@ set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
         COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}.elf> "${PROJECT_BINARY_DIR}/elf_back/${ELF_NAME}.elf"
         COMMENT "Building ${HEX_FILE}
 Building ${BIN_FILE}")
