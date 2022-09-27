@@ -1,5 +1,7 @@
 # Compare the speed-up performance of FPU and DSP
-[简体中文](!https://github.com/HamsterAPig/STM32FPUTest/blob/master/README_ZH.md)
+[简体中文](https://github.com/HamsterAPig/STM32FPUTest/blob/master/README_ZH.md)
+
+
 
 ## testing platform
 
