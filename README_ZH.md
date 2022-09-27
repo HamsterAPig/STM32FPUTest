@@ -164,15 +164,22 @@ Calc res = 1.217216, CPU Cycle = 29863026
 ### ARM_MATH
 
 ```assembly
-.text:08000F64                 FMRRD   R2, R3, D0
-.text:08000F68                 MOV     R0, R4
-.text:08000F6A                 MOV     R1, R5
-.text:08000F6C                 BL      __aeabi_dadd
-.text:08000F70                 MOV     R2, R0
-.text:08000F72                 MOV     R3, R1
-.text:08000F74                 MOV     R0, R2
-.text:08000F76                 MOV     R1, R3
-.text:08000F78                 BL      __truncdfsf2
+.text:08000F20 ; ---------------------------------------------------------------------------
+.text:08000F20
+.text:08000F20 loc_8000F20                             ; CODE XREF: main+86↓j
+.text:08000F20                 FLDS    S15, [R7,#0x38+a]
+.text:08000F24                 FCPYS   S0, S15
+.text:08000F28                 BL      arm_cos_f32
+.text:08000F2C                 FCPYS   S16, S0
+.text:08000F30                 FLDS    S15, [R7,#0x38+b]
+.text:08000F34                 FCPYS   S0, S15
+.text:08000F38                 BL      arm_sin_f32
+.text:08000F3C                 FCPYS   S15, S0
+.text:08000F40                 FADDS   S15, S16, S15
+.text:08000F44                 FSTS    S15, [R7,#0x38+res]
+.text:08000F48                 LDR     R3, [R7,#0x38+i]
+.text:08000F4A                 ADDS    R3, #1
+.text:08000F4C                 STR     R3, [R7,#0x38+i]
 ```
 
 此时计算结果为
